@@ -1,3 +1,6 @@
+from const import *
+import numpy as np
+
 def g(n,n1):
     return (1/np.sqrt(n*de))*np.log((np.sqrt(n)+np.sqrt(n1))/(np.sqrt(n)-np.sqrt(n1)))
   

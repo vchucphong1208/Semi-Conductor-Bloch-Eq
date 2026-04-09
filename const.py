@@ -1,4 +1,6 @@
 #1. Parameter
+import numpy as np
+
 chi0 = 1.0
 T2 = 100       # (fs) dephasing time T2
 wt = 50        # (fs) width of laser pulse
