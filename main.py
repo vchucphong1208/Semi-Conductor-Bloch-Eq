@@ -1,3 +1,5 @@
+from const import *
+from def_func import *
 
 from const import *
 from def_func import *
