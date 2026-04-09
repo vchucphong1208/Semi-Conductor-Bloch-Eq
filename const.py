@@ -15,4 +15,4 @@ de = emax / N
 #2. Initial Conditions
 t = -3 * wt    # initial time
 # Tạo mảng số phức 2 hàng, N+1 cột chứa toàn số 0
-fp = np.zeros((2, N + 1), dtype='complex_')
+fp = np.zeros((2, N + 1), dtype='complex')
