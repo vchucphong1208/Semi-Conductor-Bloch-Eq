@@ -1,2 +1,2 @@
 from const import *
-form def-func import *
+from def_func import *
