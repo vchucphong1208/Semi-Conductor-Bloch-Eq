@@ -112,15 +112,31 @@ plt.title('Sự tiến hóa của Mật độ hạt N(t) và Độ phân cực P
 fig.tight_layout()
 
 #Đồ thị 2: Đồ thị 3 chiều (Bề mặt) cho f_e
-#Tạo lưới tọa độ Không gian (Năng lượng) và Thời gian
+import plotly.graph_objects as go
+import plotly.io as pio
+pio.renderers.default = "browser"
+
+# Tạo lưới tọa độ Không gian (Năng lượng) và Thời gian
 T_mesh, E_mesh = np.meshgrid(history_t, n_arr * de, indexing='ij')
 
-fig = plt.figure(figsize=(10, 6))
-ax = fig.add_subplot(111, projection='3d')
-surf = ax.plot_surface(T_mesh, E_mesh, history_fe, cmap='viridis', edgecolor='none')
-ax.set_xlabel('Thời gian t (fs)')
-ax.set_ylabel('Năng lượng (meV)')
-ax.set_zlabel(r'Xác suất chiếm chỗ $f_e$')
-ax.set_title('Đồ thị 3D: Phân bố Electron theo Thời gian và Năng lượng')
-fig.colorbar(surf, shrink=0.5, aspect=5)
-plt.show()
+# Vẽ surface bằng Plotly
+fig = go.Figure(data=[go.Surface(
+    z=history_fe,   # dữ liệu f_e
+    x=history_t,    # trục thời gian
+    y=n_arr * de,   # trục năng lượng
+    colorscale='Viridis'
+)])
+
+# Tùy chỉnh layout
+fig.update_layout(
+    scene=dict(
+        xaxis_title='Thời gian t (fs)',
+        yaxis_title='Năng lượng (meV)',
+        zaxis_title='Xác suất f_e'
+    ),
+    title='Đồ thị 3D: Phân bố Electron theo Thời gian và Năng lượng',
+    autosize=True,
+    margin=dict(l=0, r=0, b=0, t=40)
+)
+
+fig.show()
