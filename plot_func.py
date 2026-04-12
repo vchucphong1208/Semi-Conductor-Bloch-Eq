@@ -2,6 +2,7 @@ from const import *
 from def_func import *
 import numpy as np
 import matplotlib.pyplot as plt 
+
 # ==========================================
 # 6. VẼ ĐỒ THỊ BÁO CÁO (Slide 6)
 # ==========================================
