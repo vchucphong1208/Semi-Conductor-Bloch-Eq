@@ -1,7 +1,6 @@
 from const import *
 from def_func import *
 import numpy as np
-
 # Import thư viện vẽ đồ thị (nếu cần)
 import matplotlib.pyplot as plt 
 
@@ -16,20 +15,20 @@ def compute_F(t_curr, Y):
     """
     Y1 = Y[0] # Lấy hàng 1
     Y2 = Y[1] # Lấy hàng 2
-    
+
     # Khởi tạo ma trận F toàn số 0 với kích thước giống Y (2 hàng, N cột)
     F = np.zeros((2, N), dtype=complex)
-    
+
     # Chạy n từ 1 đến N
     for n in range(1, N + 1):
         # Index trong Python chạy từ 0, nên vị trí cột tương ứng là n - 1
         idx = n - 1 
-        
+
         # Gọi hàm từ def_func.py
         # Truyền đúng các hằng số h, T2, de (Δε), d0 (Δ0) từ const.py
         F[0, idx] = F1_n(Y2, n, t_curr, N)
         F[1, idx] = F2_n(Y1, Y2, n, t_curr, N, h, T2, de, d0)
-        
+
     return F
 
 # ==========================================
@@ -51,31 +50,31 @@ print(f"Bắt đầu mô phỏng từ t = {current_t} fs đến {tm} fs...")
 
 # Vòng lặp thời gian
 while current_t <= tm:
-    
+
     # --- Lưu dữ liệu (để plot) ---
     history_t.append(current_t)
     # Phần thực của Y[0, 0] chính là f_e tại n=1
     history_fe_n1.append(np.real(Y[0, 0])) 
-    
+
     # --- THUẬT TOÁN RK4 ---
     # k1
     k1 = compute_F(current_t, Y) * dt
-    
+
     # k2 (tính tại t + dt/2, Y + k1/2)
     k2 = compute_F(current_t + dt/2, Y + k1/2) * dt
-    
+
     # k3 (tính tại t + dt/2, Y + k2/2)
     k3 = compute_F(current_t + dt/2, Y + k2/2) * dt
-    
+
     # k4 (tính tại t + dt, Y + k3)
     k4 = compute_F(current_t + dt, Y + k3) * dt
-    
+
     # Cập nhật giá trị Y mới
     Y = Y + (k1 + 2*k2 + 2*k3 + k4) / 6
-    
+
     # Cập nhật thời gian tiến tới bước tiếp theo
     current_t += dt
-    
+
     # (In tiến độ mỗi 100 bước để biết code đang chạy)
     if int(current_t) % 20 == 0:
         print(f"Đang giải tại t = {current_t:.1f} fs")
