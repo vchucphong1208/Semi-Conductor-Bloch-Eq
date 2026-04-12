@@ -1,86 +1,58 @@
 from const import *
 import numpy as np
 
-def g(n,n1):
-    return (1/np.sqrt(n*de))*np.log((np.sqrt(n)+np.sqrt(n1))/(np.sqrt(n)-np.sqrt(n1)))
-  
-def En(Y1, n_index, N):
-    """
-    Y1: Mảng các giá trị Y_{1, n1}
-    n_index: n hiện tại (1-based index như trong công thức)
-    """
-    # Tạo mảng n1 từ 1 đến N
-    n1_array = np.arange(1, N + 1)
-    # Tính g(n, n1) cho tất cả n1
-    g_values = np.array([g(n_index,n1) for n1 in n1_array])
-    # Re[Y] + Im[Y]
-    y_terms = np.real(Y1) + np.imag(Y1)
-    summation = np.sum(g_values * y_terms)
-    coef = (np.sqrt(Er) / np.pi) * de
-    return coef * summation
-  
-def OmegaRabi(Y2, n_index, t, N):
-    """
-    Y2: Mảng các giá trị Y_{2, n1}
-    t: thời gian hiện tại
-    """
-    n1_array = np.arange(1, N + 1)
-    g_values = np.array([g(n_index,n1) for n1 in n1_array])
-    
-    # Phần tổng Sigma
-    summation = np.sum(g_values * Y2)
-    term_pulse = (1/2) * ( (h * np.sqrt(np.pi)) / wt ) * chi0 * np.exp(-(t**2 / wt**2))
-    
-    coef = (np.sqrt(Er) / np.pi) * de
-    
-    return (1 / h) * (term_pulse + coef * summation)
+# ==========================================
+# 2. TIỀN XỬ LÝ (PRE-COMPUTATION) - BÍ QUYẾT TĂNG TỐC CODE
+# Thay vì dùng vòng lặp for, ta tính sẵn ma trận G kích thước NxN.
+# ==========================================
+n_arr = np.arange(1, N + 1)
+# Tạo lưới tọa độ để tính tương tác giữa mọi cặp (n, n1)
+n_grid, n1_grid = np.meshgrid(n_arr, n_arr, indexing='ij')
 
+# Xử lý điểm kỳ dị: thêm epsilon để không bao giờ bị chia cho 0 khi n = n1
+epsilon = 1e-10 
+tu_so = np.sqrt(n_grid) + np.sqrt(n1_grid)
+mau_so = np.abs(np.sqrt(n_grid) - np.sqrt(n1_grid)) + epsilon
 
-def F1_n(Y2, n_index, t, N):
-    """
-    Tính F_{1,n} = complex(a, a)
-    Y2: Mảng chứa các giá trị Y_2 (đóng vai trò như độ phân cực p)
-    """
-    # Tính Omega Rabi hiệu dụng tại vị trí n_index
-    Omega_R = OmegaRabi(Y2, n_index, t, N)
-    
-    # Lấy giá trị Y_{2,n} hiện tại (index = n_index - 1)
-    idx = n_index - 1
-    Y2_n = Y2[idx]
-    
-    # Tính a = -2 * Im[ Omega_R * Y2_n* ]
-    a = -2 * np.imag(Omega_R * np.conj(Y2_n))
-    
-    # Trả về complex(a, a) tương đương với a + a*j trong Python
-    return a + 1j * a
+# Tính sẵn ma trận G (Tương đương hàm g(n, n1) nhưng tính cho mọi điểm cùng lúc)
+G_matrix = (1 / np.sqrt(n_grid * de)) * np.log(tu_so / mau_so)
 
+# Hệ số chung hay dùng trong En và Omega_R
+coef_E = (np.sqrt(Er) / np.pi) * de
 
-def F2_n(Y1, Y2, n_index, t, N, hbar, T2, delta_eps, delta_0):
+# ==========================================
+# 3. HÀM TÍNH ĐẠO HÀM (MA TRẬN F)
+# ==========================================
+def compute_F(t, Y):
     """
-    Tính F_{2,n}
-    Y1: Mảng các giá trị Y_1 (có phần thực và phần ảo)
-    Y2: Mảng các giá trị Y_2 (độ phân cực)
-    delta_eps (Δε), delta_0 (Δ0): Các hằng số dải năng lượng (lấy từ const)
+    Tất cả các phép toán ở đây đều là phép tính trên mảng (Array Operations).
+    Nhanh hơn gấp hàng trăm lần so với việc dùng vòng lặp for.
     """
-    # 1. Tính En(Y) và Omega_R(Y)
-    E_n_val = En(Y1, n_index, N)
-    Omega_R = OmegaRabi(Y2, n_index, t, N)
+    Y1 = Y[0] # Chứa f_e ở phần thực, f_h ở phần ảo
+    Y2 = Y[1] # Chứa độ phân cực p
     
-    # Lấy giá trị tại n hiện tại
-    idx = n_index - 1
-    Y1_n = Y1[idx]
-    Y2_n = Y2[idx]
+    # f_e + f_h
+    fe_plus_fh = np.real(Y1) + np.imag(Y1)
     
-    # 2. Tính toán 3 thành phần của F_{2,n}
+    # Tính En(Y) bằng phép nhân ma trận (Toán tử @ trong NumPy)
+    En_arr = coef_E * (G_matrix @ fe_plus_fh)
     
-    # Thành phần 1: -(i / ħ) * [n*Δε - Δ0 - E_n(Y)] * Y_{2,n}
-    term1 = -(1j / hbar) * (n_index * delta_eps - delta_0 - E_n_val) * Y2_n
+    # Tính Omega_R(Y)
+    pulse_term = 0.5 * (h * np.sqrt(np.pi) / wt) * chi0 * np.exp(-(t**2) / (wt**2))
+    Omega_R_arr = (1 / h) * (pulse_term + coef_E * (G_matrix @ Y2))
     
-    # Thành phần 2: + i * [1 - Re[Y_{1,n}] - Im[Y_{1,n}]] * Ω_n^R(Y)
-    term2 = 1j * (1 - np.real(Y1_n) - np.imag(Y1_n)) * Omega_R
+    # Khởi tạo ma trận F (2 hàng, N cột)
+    F = np.zeros((2, N), dtype=complex)
     
-    # Thành phần 3: - Y_{2,n} / T2
-    term3 = - (Y2_n / T2)
+    # Tính F1 (Đạo hàm của Y1)
+    # a = -2 * Im[Omega_R * p*]
+    a_arr = -2 * np.imag(Omega_R_arr * np.conj(Y2))
+    F[0] = a_arr + 1j * a_arr
     
-    # Tổng hợp
-    return term1 + term2 + term3
+    # Tính F2 (Đạo hàm của Y2)
+    term1 = -(1j / h) * (n_arr * de - d0 - En_arr) * Y2
+    term2 = 1j * (1 - fe_plus_fh) * Omega_R_arr
+    term3 = - Y2 / T2
+    F[1] = term1 + term2 + term3
+    
+    return F
