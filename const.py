@@ -17,5 +17,4 @@ d0 = 30.0          # (meV) Năng lượng Detuning
 Er = 4.2           # (meV) Năng lượng Rydberg (liên kết)
 h = 658.5          # (meV.fs) Hằng số Planck rút gọn
 de = emax / N      # (meV) Mức chia năng lượng
-
 t0 = -3 * wt       # (fs) Thời gian bắt đầu
