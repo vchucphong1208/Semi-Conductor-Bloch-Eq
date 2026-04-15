@@ -174,3 +174,44 @@ def Ve_do_thi_3D(tieude, t_arr, fe, fh, p_abs):
     fig.colorbar(surf, shrink=0.5, aspect=5)
     ax.set_title("abs(p)" + tieude)
     plt.savefig("abs(p)" + tieude + ".png")
+#Vẽ 3D trên pylot, dùng hàm sau. Nhưng cần khai báo các thư viện cần thiết trong main
+def Ve_do_thi_3D(tieude, t_arr, fe, fh, p_abs):
+    fig = go.Figure(data=[go.Surface(
+    z=fe,   # dữ liệu f_e
+    x=t_arr,    # trục thời gian
+    y=n_arr * de,   # trục năng lượng
+    colorscale='Viridis'
+    )])
+# Tùy chỉnh layout
+    fig.update_layout(
+        scene=dict(
+            xaxis_title='Thời gian t (fs)',
+            yaxis_title='Năng lượng (meV)',
+            zaxis_title='Xác suất f_e'
+        ),
+        title='Đồ thị 3D: Phân bố Electron theo Thời gian và Năng lượng',
+        autosize=True,
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+    fig.show()
+    # --- Đồ thị 2: f_h ---
+    fig_fh = go.Figure(data=[go.Surface(
+        z=fh, x=t_arr, y=n_arr * de, colorscale='Plasma' # Đổi màu cho dễ phân biệt
+    )])
+    fig_fh.update_layout(
+        scene=dict(xaxis_title='t (fs)', yaxis_title='E (meV)', zaxis_title='f_h'),
+        title=f'Xác suất f_h - {tieude}',
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+    fig_fh.show()
+
+    # --- Đồ thị 3: |p| ---
+    fig_p = go.Figure(data=[go.Surface(
+        z=p_abs, x=t_arr, y=n_arr * de, colorscale='Inferno'
+    )])
+    fig_p.update_layout(
+        scene=dict(xaxis_title='t (fs)', yaxis_title='E (meV)', zaxis_title='|p|'),
+        title=f'Độ phân cực |p| - {tieude}',
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+    fig_p.show()
