@@ -118,6 +118,44 @@ T_mesh, E_mesh = np.meshgrid(history_t, n_arr * de, indexing='ij')
 fig = plt.figure(figsize=(10, 6))
 ax = fig.add_subplot(111, projection='3d')
 surf = ax.plot_surface(T_mesh, E_mesh, history_fe, cmap='viridis', edgecolor='none')
+# MAIN PROGRAMME
+# ==========================================
+# 1. Thử số của thầy
+t, eps, fe, fh, p_abs, Nt, Pt = SoDE(chi0, wt, d0, T2)
+Nt_Pt = np.array([t, Nt, Pt])
+Ve_do_thi_2D_Nt([{'label': 'N(t)', 'data': Nt_Pt}], "Sự tiến hóa của Mật độ N(t)", "N_t.png")
+Ve_do_thi_2D_Pt([{'label': 'P(t)', 'data': Nt_Pt}], "Sự tiến hóa của Độ phân cực P(t)", "P_t.png")
+Ve_do_thi_3D(" ", t, fe, fh, p_abs)
+
+# 2. Thay đổi wt
+wt = 50.0
+t, eps, fe, fh, p_abs, Nt, Pt = SoDE(chi0, wt, d0, T2)
+Ve_do_thi_3D("wt_50", t, fe, fh, p_abs)
+
+# 3. Thay đổi chi0
+chi0_vals = [0.1, 0.5, 1.0, 1.5, 2.0]
+ket_qua = []
+for c in chi0_vals:
+    chi0 = c
+    t_val, eps_val, fe_val, fh_val, p_val, Nt_val, Pt_val = SoDE(chi0, wt, d0, T2)
+    ket_qua.append({'label': f"chi0 = {chi0}", 'data': np.array([t_val, Nt_val, Pt_val])})
+    xuat_file_text(t_val, eps_val, fe_val, fh_val, p_val, Nt_val, Pt_val)
+
+Ve_do_thi_2D_Nt(ket_qua, "Sự tiến hóa của Mật độ N(t) theo chi0", "N_t_chi0.png")
+Ve_do_thi_2D_Pt(ket_qua, "Sự tiến hóa của Độ phân cực P(t) theo chi0", "P_t_chi0.png")
+
+# 4. Thay đổi T2
+T2_vals = [50.0, 100.0, 200.0, 300.0]
+ket_qua_T2 = []
+for v in T2_vals:
+    T2 = v
+    t_val, eps_val, fe_val, fh_val, p_val, Nt_val, Pt_val = SoDE(chi0, wt, d0, T2)
+    ket_qua_T2.append({'label': f"T2 = {T2}", 'data': np.array([t_val, Nt_val, Pt_val])})
+
+Ve_do_thi_2D_Nt(ket_qua_T2, "Sự tiến hóa của Mật độ N(t) theo T2", "N_t_T2.png")
+Ve_do_thi_2D_Pt(ket_qua_T2, "Sự tiến hóa của Độ phân cực P(t) theo T2", "P_t_T2.png")
+plt.show()
+
 ax.set_xlabel('Thời gian t (fs)')
 ax.set_ylabel('Năng lượng (meV)')
 ax.set_zlabel(r'Xác suất chiếm chỗ $f_e$')
