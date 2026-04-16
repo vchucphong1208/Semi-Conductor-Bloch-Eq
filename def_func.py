@@ -1,7 +1,11 @@
 from const import *
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt 
 import plotly.graph_objects as go
+import plotly.io as pio
+pio.renderers.default = 'browser'
 
 # ==========================================
 # 2. TIỀN XỬ LÝ (PRE-COMPUTATION) - BÍ QUYẾT TĂNG TỐC CODE
