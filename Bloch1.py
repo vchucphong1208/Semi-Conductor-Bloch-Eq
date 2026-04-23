@@ -53,7 +53,7 @@ def compute_F(t, Y):
     
     term1 = -(1j / h) * (n_arr * de - d0 - En_arr) * Y2
     term2 = 1j * (1 - fe_plus_fh) * Omega_R_arr
-    term3 = - Y2 / T2 * 0
+    term3 = - Y2 / T2 
     F[1] = term1 + term2 + term3
     
     return F
