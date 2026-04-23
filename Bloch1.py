@@ -6,19 +6,18 @@ import os
 # ==========================================
 # 1. HẰNG SỐ VÀ ĐIỀU KIỆN BAN ĐẦU
 # ==========================================
-chi0 = 1.0         
-T2 = 200.0         
-wt = 25.0          
-N = 100            
-dt = 2.0           
-tm = 500.0         
-emax = 300.0       
-d0 = 30.0          
-Er = 4.2           
-h = 658.5          
-de = emax / N      
-
-t0 = -3 * wt       
+chi0 = 0.1        # Cường độ xung (có thể thay 0.1 -> 2)
+T2 = 200.0         # (fs) Thời gian mất pha (Sửa lại 200fs theo PDF)
+wt = 50.0          # (fs) Bề rộng xung laser (Sửa lại 25fs theo PDF)
+N = 100            # Số điểm chia năng lượng (Sửa lại 100 theo PDF)
+dt = 2.0           # (fs) Bước thời gian
+tm = 500.0         # (fs) Thời gian tối đa
+emax = 300.0       # (meV) Năng lượng tối đa
+d0 = 100.0          # (meV) Năng lượng Detuning
+Er = 4.2           # (meV) Năng lượng Rydberg (liên kết)
+h = 658.5          # (meV.fs) Hằng số Planck rút gọn
+de = emax / N      # (meV) Mức chia năng lượng
+t0 = -3 * wt       # (fs) Thời gian bắt đầu    
 
 # ==========================================
 # 2. TIỀN XỬ LÝ
@@ -54,7 +53,7 @@ def compute_F(t, Y):
     
     term1 = -(1j / h) * (n_arr * de - d0 - En_arr) * Y2
     term2 = 1j * (1 - fe_plus_fh) * Omega_R_arr
-    term3 = - Y2 / T2
+    term3 = - Y2 / T2 * 0
     F[1] = term1 + term2 + term3
     
     return F
@@ -196,7 +195,7 @@ t, eps, fe, fh, p_abs, Nt, Pt = SoDE(chi0, wt, d0, T2)
 Ve_do_thi_3D("wt_50", t, fe, fh, p_abs)
 
 # 3. Thay đổi chi0
-chi0_vals = [0.1, 0.5, 1.0, 1.5, 2.0]
+chi0_vals = [0.1, 0.5, 1.0, 1.5, 2.0,]
 ket_qua = []
 for c in chi0_vals:
     chi0 = c
